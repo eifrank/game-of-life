@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   devise_scope :user do
     authenticated :user do
-      root 'backend#index', as: :authenticated_root
+      root 'games#index', as: :authenticated_root
     end
 
     unauthenticated do

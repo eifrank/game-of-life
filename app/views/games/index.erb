@@ -1,0 +1,6 @@
+<div id="root"></div>
+<%= button_to "Sign out", destroy_user_session_path, method: :delete %>
+
+<%= content_for :javascript_area do %>
+  <%= javascript_include_tag 'games/index'%>
+<% end %>
