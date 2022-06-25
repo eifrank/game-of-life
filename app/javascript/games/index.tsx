@@ -2,9 +2,6 @@ import React, { useState, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import produce from "immer";
 
-const numRows = 4;
-const numCols = 8;
-
 const operations = [
   [0, 1],
   [0, -1],
@@ -16,21 +13,21 @@ const operations = [
   [-1, 0]
 ];
 
-const generateEmptyGrid = () => {
-  const rows = [];
-  for (let i = 0; i < numRows; i++) {
-    rows.push(Array.from(Array(numCols), () => 0));
-  }
+function Game(props) {
+  
+  const generateEmptyGrid = () => {
+    const rows = [];
+    for (let i = 0; i < props.rows; i++) {
+      rows.push(Array.from(Array(props.columns), () => 0));
+    }
+  
+    return rows;
+  };
 
-  return rows;
-};
-
-function Game () {
   const [grid, setGrid] = useState(() => {
     return generateEmptyGrid();
   });
 
-  const [generation, setGeneration] = useState<Number>(0);
 
   const [running, setRunning] = useState<boolean>(false);
 
@@ -44,24 +41,28 @@ function Game () {
 
     setGrid(g => {
       return produce(g, gridCopy => {
-        for (let i = 0; i < numRows; i++) {
-          for (let k = 0; k < numCols; k++) {
+        for (let i = 0; i < props.rows; i++) {
+          for (let k = 0; k < props.columns; k++) {
+
             let neighbors = 0;
             operations.forEach(([x, y]) => {
               const newI = i + x;
               const newK = k + y;
-              if (newI >= 0 && newI < numRows && newK >= 0 && newK < numCols) {
+              if (newI >= 0 &&
+                  newI < props.rows &&
+                  newK >= 0 &&
+                  newK < props.columns) {
                 neighbors += g[newI][newK];
               }
             });
-
+            
             if (neighbors < 2 || neighbors > 3) {
-              gridCopy[i][k] = 0;
+              gridCopy[i][k] = 0;//die
             } else if (g[i][k] === 0 && neighbors === 3) {
               gridCopy[i][k] = 1;
             }
           }
-          setGeneration(generation + 1);
+
         }
       });
     });
@@ -93,7 +94,7 @@ function Game () {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: `repeat(${numCols}, 20px)`
+          gridTemplateColumns: `repeat(${props.columns}, 40px)`
         }}
       >
         {grid.map((rows, i) =>
@@ -107,25 +108,23 @@ function Game () {
                 setGrid(newGrid);
               }}
               style={{
-                width: 20,
-                height: 20,
+                width: 40,
+                height: 40,
                 backgroundColor: grid[i][k] ? "green" : undefined,
                 border: "solid 1px black"
               }}
             />
           ))
         )}
-        <div>
-          Generazione {generation}
-        </div>
       </div>
     </>
   );
 };
 
-const rootElement = document.getElementById('gameOfLife');
+const rootElement = document.getElementById('gameOfLife') as HTMLElement;
+const conf = JSON.parse(rootElement.dataset.conf as string);
 
 ReactDOM.render(
-  <Game />,
+  <Game  {...conf}/>,
   rootElement
 );

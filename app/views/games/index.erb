@@ -1,4 +1,7 @@
-<div id="gameOfLife"></div>
+<div
+  id="gameOfLife"
+  data-conf="<%= @conf.to_json %>">
+</div>
 <%= button_to "Sign out", destroy_user_session_path, method: :delete %>
 
 <%= content_for :javascript_area do %>

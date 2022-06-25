@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Ruby implementation of Conway's Game of Life
 # run the program as : ruby game.rb
 
@@ -7,7 +9,6 @@ require 'yaml'
 class Game
 
   attr_reader :matrix
-  @conf = YAML.load(File.read("config.yaml"))
 
   def initialize(rows, cols, seed)
     @matrix = rows.times.map do |y|
@@ -18,14 +19,14 @@ class Game
   end
 
   def play
-    conf = YAML.load(File.read("config.yaml"))
+    conf = YAML.safe_load(File.read('config.yaml'))
     generation = conf['generation']
-    while(true)
+    while (true)
       clear
       draw(generation)
       next_life_state
       sleep(1)
-      generation +=1
+      generation += 1
     end
   end
 
@@ -41,15 +42,14 @@ class Game
     @spinners ||= %w( | / -- \\ )
   end
 
-
   def draw(generation)
     margin = "\t"
-    hline = "=" * (matrix.first.size * 2 + 3)
-    spinner = spinners[generation%4]
+    hline = '=' * (matrix.first.size * 2 + 3)
+    spinner = spinners[generation % 4]
     [
-      "\n"*4,
+      "\n" * 4,
       hline,
-      matrix.map{|row| "= " + row.join(" ") + " =" },
+      matrix.map { |row| "=  #{row.join(" ")} =" },
       hline,
       "%2s Generation: #{generation}" % spinner
     ].flatten.each do |line|
@@ -60,7 +60,7 @@ class Game
   def next_life_state
     matrix.each do |row|
       row.each do |cell|
-        cell.next_life_state
+        cell&.next_life_state
       end
     end
   end
@@ -72,7 +72,7 @@ end
 
 class Cell
 
-  attr_reader :x, :y, :game, :living, :neighbours
+  attr_reader :x, :y, :game, :living
 
   def initialize(game, x, y, state)
     @game = game
@@ -98,18 +98,16 @@ class Cell
   end
 
   def neighbours
-    @neighbours ||= begin
-      [
-        game.cell_at(x-1, y-1),
-        game.cell_at(x, y-1),
-        game.cell_at(x+1, y-1),
-        game.cell_at(x-1, y),
-        game.cell_at(x+1, y),
-        game.cell_at(x-1, y+1),
-        game.cell_at(x, y+1),
-        game.cell_at(x+1, y+1)
-      ].compact
-    end
+    [
+      game.cell_at(x - 1, y - 1),
+      game.cell_at(x, y - 1),
+      game.cell_at(x + 1, y - 1),
+      game.cell_at(x - 1, y),
+      game.cell_at(x + 1, y),
+      game.cell_at(x - 1, y + 1),
+      game.cell_at(x, y + 1),
+      game.cell_at(x + 1, y + 1)
+    ].compact
   end
 
   def live_neighbours
@@ -144,12 +142,12 @@ class Cell
   end
 
   def to_s
-    alive? ? "*" : "."
+    alive? ? '*' : '.'
   end
 end
 
 if $PROGRAM_NAME == __FILE__
-  conf = YAML.load(File.read("config.yaml"))
+  conf = YAML.safe_load(File.read('config.yaml'))
   rows = conf['rows']
   columns = conf['columns']
   Game.play(rows, columns, Time.now.to_i)
